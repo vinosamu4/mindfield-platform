@@ -1,0 +1,789 @@
+import { useState, useEffect, useCallback } from "react";
+import {
+  BookOpen, Heart, Shield, Target, Sparkles,
+  ChevronDown, Star, Quote, ArrowRight, CheckCircle2,
+  Zap, Users, Brain, TrendingUp, Lock, Eye,
+  Menu, X, Play, MessageCircle,
+  Award, Timer, RefreshCw, PenTool, ExternalLink
+} from "lucide-react";
+import {
+  journalPrompts, athleteQuotes, modules, steps, faqItems
+} from "./data/content";
+
+// ─── Navigation ───
+function Navigation({ activeSection, onNavigate }: {
+  activeSection: string;
+  onNavigate: (section: string) => void;
+}) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navItems = [
+    { id: "home", label: "Startseite" },
+    { id: "features", label: "Funktionen" },
+    { id: "journal", label: "Journal" },
+    { id: "guide", label: "Anleitung" },
+  ];
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-dark">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate("home")}>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-gold flex items-center justify-center">
+              <Brain className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-white font-bold text-xl tracking-tight">MindField</span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeSection === item.id
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="md:hidden text-white/80"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      {mobileOpen && (
+        <div className="md:hidden glass-dark border-t border-white/10 animate-fade-in">
+          <div className="px-4 py-3 space-y-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onNavigate(item.id);
+                  setMobileOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                  activeSection === item.id
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ─── Hero Section ───
+function HeroSection({ onNavigate }: { onNavigate: (section: string) => void }) {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-600/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent-gold/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "3s" }} />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+      </div>
+
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
+        backgroundSize: "60px 60px"
+      }} />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-white/80 text-sm font-medium mb-8 backdrop-blur-sm">
+            <Sparkles className="w-4 h-4 text-accent-gold" />
+            <span>Mentale Stärke für junge Leistungssportler</span>
+          </div>
+        </div>
+
+        <h1 className="animate-fade-in-up delay-100 text-5xl sm:text-6xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight mb-6">
+          Dein Weg ist
+          <br />
+          <span className="gradient-text">nicht gewöhnlich.</span>
+          <br />
+          Deine Unterstützung
+          <br />
+          <span className="gradient-text-warm">sollte es auch nicht sein.</span>
+        </h1>
+
+        <p className="animate-fade-in-up delay-200 text-lg sm:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
+          MindField ist dein sicherer digitaler Raum für mentale Stärke, Reflexion und persönliches Wachstum – 
+          entwickelt für junge Athleten, die mehr wollen als nur trainieren.
+        </p>
+
+        <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <button
+            onClick={() => onNavigate("journal")}
+            className="group px-8 py-4 bg-gradient-to-r from-brand-600 to-brand-500 text-white font-semibold rounded-2xl shadow-lg shadow-brand-600/30 hover:shadow-brand-600/50 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+          >
+            <PenTool className="w-5 h-5" />
+            Journal starten
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+          <button
+            onClick={() => onNavigate("guide")}
+            className="px-8 py-4 bg-white/10 text-white font-semibold rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 backdrop-blur-sm flex items-center gap-3"
+          >
+            <Play className="w-5 h-5" />
+            Anleitung ansehen
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="animate-fade-in-up delay-400 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto">
+          {[
+            { value: "12+", label: "Altersgruppe" },
+            { value: "50+", label: "Reflexionsfragen" },
+            { value: "6", label: "Module" },
+            { value: "24/7", label: "Verfügbar" },
+          ].map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold text-white mb-1">{stat.value}</div>
+              <div className="text-sm text-white/40">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
+          <div className="w-1.5 h-3 bg-white/60 rounded-full animate-pulse" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Features Section ───
+function FeaturesSection() {
+  const features = [
+    {
+      icon: <BookOpen className="w-7 h-7" />,
+      title: "Sport-Tagesjournal",
+      description: "Dein persönlicher digitaler Raum, um Gedanken, Ängste, Ziele und Erfahrungen festzuhalten – mit Reflexionsfragen, die dich wirklich weiterbringen.",
+      color: "from-blue-500 to-indigo-600",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      icon: <Quote className="w-7 h-7" />,
+      title: "Inspirierende Zitate",
+      description: "Weisheiten von Sportlegenden, die zeigen: Auch die Größten kennen Zweifel, Angst und Rückschläge. Du bist nicht allein.",
+      color: "from-amber-500 to-orange-600",
+      bgColor: "bg-amber-500/10",
+    },
+    {
+      icon: <Brain className="w-7 h-7" />,
+      title: "Mentale Trainingsmodule",
+      description: "Strukturierte Programme zu Druck, Selbstvertrauen, Rückschlägen, Fokus, Verletzung und Wettkampfvorbereitung.",
+      color: "from-emerald-500 to-teal-600",
+      bgColor: "bg-emerald-500/10",
+    },
+    {
+      icon: <Shield className="w-7 h-7" />,
+      title: "Sicherer & Privater Raum",
+      description: "Alles, was du hier teilst, bleibt vertraulich. Dein Journal ist dein geschützter Bereich – nur für dich.",
+      color: "from-purple-500 to-violet-600",
+      bgColor: "bg-purple-500/10",
+    },
+    {
+      icon: <TrendingUp className="w-7 h-7" />,
+      title: "Fortschritt verfolgen",
+      description: "Sieh über die Zeit, wie du wächst. Erkenne Muster, feiere Fortschritte und verstehe deine Entwicklung besser.",
+      color: "from-rose-500 to-pink-600",
+      bgColor: "bg-rose-500/10",
+    },
+    {
+      icon: <Users className="w-7 h-7" />,
+      title: "Expert:innen-Begleitung",
+      description: "Zugang zu erfahrenen Sportpsycholog:innen, die dich auf deinem Weg begleiten – wann immer du sie brauchst.",
+      color: "from-cyan-500 to-blue-600",
+      bgColor: "bg-cyan-500/10",
+    },
+  ];
+
+  return (
+    <section id="features" className="py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent-gold/5 rounded-full blur-3xl" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-600/10 border border-brand-600/20 text-brand-400 text-sm font-medium mb-6">
+            <Zap className="w-4 h-4" />
+            Funktionen
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Alles, was du brauchst.
+            <br />
+            <span className="gradient-text">An einem Ort.</span>
+          </h2>
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Jede Funktion wurde mit Sportpsycholog:innen entwickelt, um dich wirklich dort abzuholen, wo du stehst.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, i) => (
+            <div
+              key={i}
+              className="group p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className={`w-14 h-14 rounded-2xl ${feature.bgColor} flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                {feature.icon}
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+              <p className="text-white/50 leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Modules Section ───
+function ModulesSection() {
+  return (
+    <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-950 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600/10 border border-emerald-600/20 text-emerald-400 text-sm font-medium mb-6">
+            <Target className="w-4 h-4" />
+            Module
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Strukturierte
+            <br />
+            <span className="gradient-text">Mentale Trainings</span>
+          </h2>
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Sechs umfassende Module, die dich Schritt für Schritt mental stärker machen.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {modules.map((mod, i) => (
+            <div
+              key={i}
+              className="group relative p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-500 overflow-hidden"
+            >
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${mod.color} opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity`} />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">{mod.icon}</div>
+                <h3 className="text-xl font-bold text-white mb-2">{mod.title}</h3>
+                <p className="text-white/50 mb-4 leading-relaxed text-sm">{mod.description}</p>
+                <div className="flex items-center gap-4 text-sm text-white/40">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-4 h-4" />
+                    {mod.lessons} Lektionen
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Timer className="w-4 h-4" />
+                    {mod.duration}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Journal Section ───
+function JournalSection() {
+  const [selectedPrompt, setSelectedPrompt] = useState<number | null>(null);
+  const [journalEntries, setJournalEntries] = useState<Record<number, string>>({});
+  const [savedEntries, setSavedEntries] = useState<number[]>([]);
+  const [currentQuote, setCurrentQuote] = useState(0);
+  const [showQuote, setShowQuote] = useState(false);
+
+  const handleSave = useCallback((promptId: number) => {
+    if (journalEntries[promptId]?.trim()) {
+      setSavedEntries(prev => [...prev, promptId]);
+      setSelectedPrompt(null);
+    }
+  }, [journalEntries]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuote(prev => (prev + 1) % athleteQuotes.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section id="journal" className="py-24 bg-gradient-to-b from-slate-950 via-indigo-950/30 to-slate-950 relative overflow-hidden">
+      <div className="absolute top-1/3 left-0 w-96 h-96 bg-brand-600/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-0 w-80 h-80 bg-purple-600/5 rounded-full blur-3xl" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-600/10 border border-rose-600/20 text-rose-400 text-sm font-medium mb-6">
+            <PenTool className="w-4 h-4" />
+            Journal
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Dein persönliches
+            <br />
+            <span className="gradient-text">Sport-Tagesjournal</span>
+          </h2>
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Halte deine Gedanken, Ängste, Ziele und Erfahrungen fest. Mit Reflexionsfragen, die dich wirklich weiterbringen.
+          </p>
+        </div>
+
+        {/* Quote Banner */}
+        <div className="mb-12 max-w-3xl mx-auto">
+          <div
+            className="relative p-8 rounded-3xl bg-gradient-to-r from-brand-600/10 to-accent-gold/10 border border-white/10 cursor-pointer hover:border-white/20 transition-all"
+            onClick={() => setShowQuote(!showQuote)}
+          >
+            <Quote className="w-8 h-8 text-brand-400/50 mb-4" />
+            <p className="text-xl sm:text-2xl text-white/90 font-serif italic leading-relaxed mb-4">
+              „{athleteQuotes[currentQuote].text}"
+            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-white font-semibold">{athleteQuotes[currentQuote].author}</span>
+                <span className="text-white/40 ml-2 text-sm">• {athleteQuotes[currentQuote].sport}</span>
+              </div>
+              <button className="text-white/40 hover:text-white/80 transition-colors flex items-center gap-2 text-sm">
+                <RefreshCw className="w-4 h-4" />
+                Neues Zitat
+              </button>
+            </div>
+            {showQuote && (
+              <div className="mt-4 pt-4 border-t border-white/10 text-sm text-white/40 animate-fade-in">
+                💡 Tipp: Klicke auf eine Reflexionsfrage unten, um deinen Eintrag zu starten.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Journal Prompts Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          {journalPrompts.map((prompt) => (
+            <button
+              key={prompt.id}
+              onClick={() => setSelectedPrompt(selectedPrompt === prompt.id ? null : prompt.id)}
+              className={`group text-left p-6 rounded-2xl border transition-all duration-300 ${
+                selectedPrompt === prompt.id
+                  ? "bg-brand-600/20 border-brand-500/40 shadow-lg shadow-brand-600/10"
+                  : "bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12]"
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-2xl">{prompt.icon}</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-white/50 font-medium">
+                  {prompt.category}
+                </span>
+              </div>
+              <h4 className="text-white font-semibold mb-2 leading-snug">{prompt.question}</h4>
+              {savedEntries.includes(prompt.id) && (
+                <div className="flex items-center gap-1 text-emerald-400 text-sm mt-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Beantwortet
+                </div>
+              )}
+              {selectedPrompt === prompt.id && (
+                <div className="mt-4 animate-fade-in">
+                  <textarea
+                    className="w-full h-32 bg-white/10 border border-white/20 rounded-xl p-4 text-white text-sm placeholder-white/30 focus:outline-none focus:border-brand-500/50 resize-none"
+                    placeholder="Schreibe hier deine Gedanken auf..."
+                    value={journalEntries[prompt.id] || ""}
+                    onChange={(e) => setJournalEntries(prev => ({ ...prev, [prompt.id]: e.target.value }))}
+                  />
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-xs text-white/30">
+                      {((journalEntries[prompt.id] || "").length)} Zeichen
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSave(prompt.id);
+                      }}
+                      className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-xl hover:bg-brand-500 transition-colors flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Speichern
+                    </button>
+                  </div>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Journal Stats */}
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+            <div className="flex items-center justify-center gap-8 mb-4">
+              <div>
+                <div className="text-3xl font-bold text-white">{savedEntries.length}</div>
+                <div className="text-sm text-white/40">Einträge heute</div>
+              </div>
+              <div className="w-px h-12 bg-white/10" />
+              <div>
+                <div className="text-3xl font-bold text-white">{journalPrompts.length}</div>
+                <div className="text-sm text-white/40">Fragen verfügbar</div>
+              </div>
+              <div className="w-px h-12 bg-white/10" />
+              <div>
+                <div className="text-3xl font-bold text-white">
+                  {Math.round((savedEntries.length / journalPrompts.length) * 100)}%
+                </div>
+                <div className="text-sm text-white/40">Abgeschlossen</div>
+              </div>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-brand-500 to-accent-gold rounded-full transition-all duration-500"
+                style={{ width: `${(savedEntries.length / journalPrompts.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Guide Section ───
+function GuideSection() {
+  const [openStep, setOpenStep] = useState<number | null>(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  return (
+    <section id="guide" className="py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl -translate-x-1/2" />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-sm font-medium mb-6">
+            <Play className="w-4 h-4" />
+            Schritt-für-Schritt Anleitung
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            So bringst du
+            <br />
+            <span className="gradient-text">deine Plattform online</span>
+          </h2>
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Keine Programmierkenntnisse nötig! Folge einfach diesen 5 einfachen Schritten – 
+            ich erkläre dir alles ganz genau.
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="space-y-4 mb-20">
+          {steps.map((step) => (
+            <div
+              key={step.number}
+              className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden transition-all duration-300"
+            >
+              <button
+                onClick={() => setOpenStep(openStep === step.number ? null : step.number)}
+                className="w-full p-6 flex items-center gap-4 text-left hover:bg-white/[0.03] transition-colors"
+              >
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 transition-all duration-300 ${
+                  openStep === step.number
+                    ? "bg-gradient-to-br from-brand-600 to-brand-400 text-white shadow-lg shadow-brand-600/30"
+                    : "bg-white/10 text-white/60"
+                }`}>
+                  {step.number}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-white">{step.title}</h3>
+                  <p className="text-sm text-white/40 mt-1 truncate">{step.description}</p>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-white/40 shrink-0 transition-transform duration-300 ${
+                  openStep === step.number ? "rotate-180" : ""
+                }`} />
+              </button>
+
+              {openStep === step.number && (
+                <div className="px-6 pb-6 animate-fade-in">
+                  <div className="ml-16 space-y-4">
+                    {step.items.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]"
+                      >
+                        <span className="text-2xl shrink-0 mt-0.5">{item.icon}</span>
+                        <div>
+                          <h4 className="text-white font-semibold mb-1">{item.title}</h4>
+                          <p className="text-white/50 text-sm leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* FAQ */}
+        <div className="mb-12">
+          <h3 className="text-2xl font-bold text-white text-center mb-8">
+            Häufig gestellte Fragen
+          </h3>
+          <div className="space-y-3">
+            {faqItems.map((faq, i) => (
+              <div
+                key={i}
+                className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-white/[0.03] transition-colors"
+                >
+                  <span className="text-white font-semibold pr-4">{faq.question}</span>
+                  <ChevronDown className={`w-5 h-5 text-white/40 shrink-0 transition-transform duration-300 ${
+                    openFaq === i ? "rotate-180" : ""
+                  }`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-5 animate-fade-in">
+                    <p className="text-white/50 leading-relaxed ml-0">{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="text-center p-12 rounded-3xl bg-gradient-to-br from-brand-600/20 to-accent-gold/10 border border-white/10">
+          <div className="text-5xl mb-6">🚀</div>
+          <h3 className="text-3xl font-bold text-white mb-4">
+            Bereit, deine Plattform zu starten?
+          </h3>
+          <p className="text-white/50 mb-8 max-w-lg mx-auto">
+            Du hast jetzt alles, was du brauchst. Folge den Schritten oben und bringe MindField online – 
+            deine Sportler werden es dir danken.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="px-8 py-4 bg-gradient-to-r from-brand-600 to-brand-500 text-white font-semibold rounded-2xl shadow-lg shadow-brand-600/30 hover:shadow-brand-600/50 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+            >
+              <ExternalLink className="w-5 h-5" />
+              Nochmal von vorne
+            </button>
+            <button
+              onClick={() => {
+                const el = document.getElementById("features");
+                el?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="px-8 py-4 bg-white/10 text-white font-semibold rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 flex items-center gap-3"
+            >
+              <Eye className="w-5 h-5" />
+              Funktionen entdecken
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Testimonials / Social Proof ───
+function SocialProofSection() {
+  const testimonials = [
+    {
+      name: "Lena, 17",
+      sport: "Schwimmen",
+      text: "MindField hat mir geholfen, meine Wettkampfangst in den Griff zu bekommen. Die Journal-Funktion ist wie ein Gespräch mit mir selbst – nur besser.",
+      avatar: "🏊‍♀️",
+    },
+    {
+      name: "Max, 15",
+      sport: "Fußball",
+      text: "Nach meiner Verletzung war ich am Boden. Die Module haben mir gezeigt, dass ein Rückschlag kein Ende ist. Ich bin stärker zurückgekommen.",
+      avatar: "⚽",
+    },
+    {
+      name: "Sarah, 19",
+      sport: "Leichtathletik",
+      text: "Endlich ein Ort, an dem ich offen über meine Ängste sprechen kann, ohne dass mich jemand komisch anschaut. Das hat alles verändert.",
+      avatar: "🏃‍♀️",
+    },
+  ];
+
+  return (
+    <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-950 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-600/10 border border-pink-600/20 text-pink-400 text-sm font-medium mb-6">
+            <Heart className="w-4 h-4" />
+            Stimmen
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Was unsere
+            <br />
+            <span className="gradient-text">Athleten sagen</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {testimonials.map((t, i) => (
+            <div
+              key={i}
+              className="p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-300"
+            >
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(5)].map((_, j) => (
+                  <Star key={j} className="w-5 h-5 text-accent-gold fill-accent-gold" />
+                ))}
+              </div>
+              <p className="text-white/70 leading-relaxed mb-6 italic">„{t.text}"</p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl">
+                  {t.avatar}
+                </div>
+                <div>
+                  <div className="text-white font-semibold">{t.name}</div>
+                  <div className="text-white/40 text-sm">{t.sport}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Footer ───
+function Footer() {
+  return (
+    <footer className="py-16 bg-slate-950 border-t border-white/[0.06]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-gold flex items-center justify-center">
+                <Brain className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-white font-bold text-xl">MindField</span>
+            </div>
+            <p className="text-white/40 leading-relaxed max-w-md mb-6">
+              Mentale Stärke für junge Leistungssportler. Dein sicherer digitaler Raum für Reflexion, 
+              Wachstum und persönliche Entwicklung.
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all cursor-pointer">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all cursor-pointer">
+                <Award className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all cursor-pointer">
+                <Lock className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-white font-semibold mb-4">Plattform</h4>
+            <ul className="space-y-3">
+              {["Journal", "Module", "Zitate", "Fortschritt", "Anleitung"].map((item) => (
+                <li key={item}>
+                  <span className="text-white/40 hover:text-white/80 cursor-pointer transition-colors text-sm">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-semibold mb-4">Rechtliches</h4>
+            <ul className="space-y-3">
+              {["Datenschutz", "Impressum", "AGB", "Kontakt"].map((item) => (
+                <li key={item}>
+                  <span className="text-white/40 hover:text-white/80 cursor-pointer transition-colors text-sm">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-white/30 text-sm">
+            © 2025 MindField. Alle Rechte vorbehalten.
+          </p>
+          <p className="text-white/30 text-sm flex items-center gap-2">
+            Mit <Heart className="w-4 h-4 text-rose-500 fill-rose-500" /> für junge Athleten gemacht
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── Main App ───
+export function App() {
+  const [activeSection, setActiveSection] = useState("home");
+
+  const handleNavigate = useCallback((section: string) => {
+    setActiveSection(section);
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["home", "features", "journal", "guide"];
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 200 && rect.bottom >= 200) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white">
+      <Navigation activeSection={activeSection} onNavigate={handleNavigate} />
+      <HeroSection onNavigate={handleNavigate} />
+      <FeaturesSection />
+      <ModulesSection />
+      <JournalSection />
+      <SocialProofSection />
+      <GuideSection />
+      <Footer />
+    </div>
+  );
+}
